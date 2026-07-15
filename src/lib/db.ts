@@ -1,8 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
-// Next.js hot-reloads modules in development. This pattern prevents instantiating
-// multiple SQLite connections, which would lock the file.
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
@@ -10,9 +9,13 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   (() => {
-    const adapter = new PrismaBetterSqlite3({
-      url: "file:./prisma/dev.db"
-    });
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      // Direct client fallback for build compilation phase when DATABASE_URL is not yet bound
+      return new PrismaClient();
+    }
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
     return new PrismaClient({ adapter });
   })();
 

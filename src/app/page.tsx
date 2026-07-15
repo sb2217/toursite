@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+
+export const revalidate = 0;
 import { Header } from "@/components/public/Header";
 import { Footer } from "@/components/public/Footer";
 import { PackageCard } from "@/components/public/PackageCard";
